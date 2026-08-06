@@ -1,11 +1,22 @@
-import { Button } from "./components/ui/button";
+import AppHeader from "@/components/layout/AppHeader";
 
 function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100">
-      <h1 className="mb-4 text-4xl font-bold text-slate-900">TacticLab</h1>
-      <Button>Taktik Oluştur</Button>
-    </main>
+    <div className="min-h-screen bg-slate-100">
+      <AppHeader />
+
+      <main className="mx-auto max-w-7xl px-6 py-8">
+        <section className="rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="text-2xl font-semibold text-slate-900">
+            Taktik tahtası
+          </h2>
+
+          <p className="mt-2 text-slate-600">
+            Saha ve takım araçları bu alanda yer alacak.
+          </p>
+        </section>
+      </main>
+    </div>
   );
 }
 
