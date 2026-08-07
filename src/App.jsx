@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppHeader from "@/components/layout/AppHeader";
+import PlayerManager from "@/components/tactics/PlayerManager";
 import SportField from "@/components/tactics/SportField";
 import SportSelector from "@/components/tactics/SportSelector";
 import TeamSettings from "@/components/tactics/TeamSettings";
@@ -7,6 +8,22 @@ import TeamSettings from "@/components/tactics/TeamSettings";
 function App() {
   const [selectedSport, setSelectedSport] = useState("football");
   const [teamName, setTeamName] = useState("Ev Sahibi");
+  const [teamColor, setTeamColor] = useState("#2563eb");
+  const [players, setPlayers] = useState([]);
+
+  const currentPlayers = players.filter(
+    (player) => player.sport === selectedSport,
+  );
+
+  function handleAddPlayer(newPlayer) {
+    setPlayers((currentPlayers) => [...currentPlayers, newPlayer]);
+  }
+
+  function handleDeletePlayer(playerId) {
+    setPlayers((currentPlayers) =>
+      currentPlayers.filter((player) => player.id !== playerId),
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -20,10 +37,22 @@ function App() {
           />
 
           <div className="mt-8 grid gap-8 border-t pt-6 lg:grid-cols-[280px_1fr]">
-            <aside className="rounded-xl border bg-white p-5">
-              <TeamSettings
-                teamName={teamName}
-                onTeamNameChange={setTeamName}
+            <aside className="space-y-5">
+              <div className="rounded-xl border bg-white p-5">
+                <TeamSettings
+                  teamName={teamName}
+                  teamColor={teamColor}
+                  onTeamNameChange={setTeamName}
+                  onTeamColorChange={setTeamColor}
+                />
+              </div>
+
+              <PlayerManager
+                key={selectedSport} // Reset the component state when the sport changes
+                selectedSport={selectedSport}
+                players={currentPlayers}
+                onAddPlayer={handleAddPlayer}
+                onDeletePlayer={handleDeletePlayer}
               />
             </aside>
 
