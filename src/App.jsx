@@ -80,7 +80,11 @@ function App() {
               />
             </aside>
 
-            <SportField selectedSport={selectedSport} />
+            <SportField
+              selectedSport={selectedSport}
+              players={currentPlayers}
+              teamColor={teamColor}
+            />
           </div>
         </section>
       </main>
