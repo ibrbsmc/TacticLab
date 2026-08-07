@@ -25,6 +25,29 @@ function App() {
     );
   }
 
+  function handleSelectCaptain(playerId) {
+    setPlayers((currentPlayers) => {
+      const selectedPlayer = currentPlayers.find(
+        (player) => player.id === playerId,
+      );
+
+      if (!selectedPlayer) {
+        return currentPlayers;
+      }
+
+      return currentPlayers.map((player) => {
+        if (player.sport !== selectedPlayer.sport) {
+          return player;
+        }
+
+        return {
+          ...player,
+          isCaptain: selectedPlayer.isCaptain ? false : player.id === playerId,
+        };
+      });
+    });
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       <AppHeader />
@@ -48,11 +71,12 @@ function App() {
               </div>
 
               <PlayerManager
-                key={selectedSport} // Reset the component state when the sport changes
+                key={selectedSport}
                 selectedSport={selectedSport}
                 players={currentPlayers}
                 onAddPlayer={handleAddPlayer}
                 onDeletePlayer={handleDeletePlayer}
+                onSelectCaptain={handleSelectCaptain}
               />
             </aside>
 

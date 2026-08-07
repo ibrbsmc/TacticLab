@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Crown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -31,6 +31,7 @@ function PlayerManager({
   players,
   onAddPlayer,
   onDeletePlayer,
+  onSelectCaptain,
 }) {
   const [playerName, setPlayerName] = useState("");
   const [playerNumber, setPlayerNumber] = useState("");
@@ -74,6 +75,7 @@ function PlayerManager({
       name: cleanedPlayerName,
       number: numericPlayerNumber,
       position: playerPosition,
+      isCaptain: false,
     };
 
     onAddPlayer(newPlayer);
@@ -180,14 +182,37 @@ function PlayerManager({
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-slate-800">
+                <p className="flex items-center gap-1 truncate font-medium text-slate-800">
                   {player.name}
+
+                  {player.isCaptain && (
+                    <Crown
+                      size={15}
+                      className="shrink-0 text-amber-500"
+                      aria-label="Takım kaptanı"
+                    />
+                  )}
                 </p>
 
                 <p className="text-xs text-slate-500">
                   {getPositionLabel(player.position)}
                 </p>
               </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onSelectCaptain(player.id)}
+                aria-label={`${player.name} adlı oyuncuyu kaptan yap`}
+                title="Kaptan yap"
+              >
+                <Crown
+                  className={
+                    player.isCaptain ? "text-amber-500" : "text-slate-400"
+                  }
+                />
+              </Button>
 
               <Button
                 type="button"
