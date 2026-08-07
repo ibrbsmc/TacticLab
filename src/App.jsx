@@ -4,30 +4,79 @@ import FormationSelector from "@/components/tactics/FormationSelector";
 import PlayerManager from "@/components/tactics/PlayerManager";
 import SportField from "@/components/tactics/SportField";
 import SportSelector from "@/components/tactics/SportSelector";
+import TeamSelector from "@/components/tactics/TeamSelector";
 import TeamSettings from "@/components/tactics/TeamSettings";
 import { defaultFormationsBySport, formationsBySport } from "@/data/formations";
 
 function App() {
   const [selectedSport, setSelectedSport] = useState("football");
-  const [teamName, setTeamName] = useState("Ev Sahibi");
-  const [teamColor, setTeamColor] = useState("#2563eb");
+  const [selectedTeamId, setSelectedTeamId] = useState("home");
+
+  const [teams, setTeams] = useState({
+    home: {
+      id: "home",
+      name: "Ev Sahibi",
+      color: "#2563eb",
+    },
+    away: {
+      id: "away",
+      name: "Deplasman",
+      color: "#dc2626",
+    },
+  });
+
   const [players, setPlayers] = useState([]);
-  const [selectedFormations, setSelectedFormations] = useState(
-    defaultFormationsBySport,
-  );
+
+  const [selectedFormations, setSelectedFormations] = useState({
+    home: {
+      ...defaultFormationsBySport,
+    },
+    away: {
+      ...defaultFormationsBySport,
+    },
+  });
+
+  const selectedTeam = teams[selectedTeamId];
 
   const currentPlayers = players.filter(
-    (player) => player.sport === selectedSport,
+    (player) =>
+      player.sport === selectedSport && player.teamId === selectedTeamId,
   );
 
-  const selectedFormationId = selectedFormations[selectedSport];
+  const selectedFormationId = selectedFormations[selectedTeamId][selectedSport];
 
   const selectedFormation = formationsBySport[selectedSport].find(
     (formation) => formation.id === selectedFormationId,
   );
 
+  function handleTeamNameChange(teamName) {
+    setTeams((currentTeams) => ({
+      ...currentTeams,
+      [selectedTeamId]: {
+        ...currentTeams[selectedTeamId],
+        name: teamName,
+      },
+    }));
+  }
+
+  function handleTeamColorChange(teamColor) {
+    setTeams((currentTeams) => ({
+      ...currentTeams,
+      [selectedTeamId]: {
+        ...currentTeams[selectedTeamId],
+        color: teamColor,
+      },
+    }));
+  }
+
   function handleAddPlayer(newPlayer) {
-    setPlayers((currentPlayers) => [...currentPlayers, newPlayer]);
+    setPlayers((currentPlayers) => [
+      ...currentPlayers,
+      {
+        ...newPlayer,
+        teamId: selectedTeamId,
+      },
+    ]);
   }
 
   function handleUpdatePlayer(playerId, updatedPlayer) {
@@ -60,7 +109,11 @@ function App() {
       }
 
       return currentPlayers.map((player) => {
-        if (player.sport !== selectedPlayer.sport) {
+        const isSameTeam =
+          player.teamId === selectedPlayer.teamId &&
+          player.sport === selectedPlayer.sport;
+
+        if (!isSameTeam) {
           return player;
         }
 
@@ -97,14 +150,20 @@ function App() {
 
     setSelectedFormations((currentFormations) => ({
       ...currentFormations,
-      [selectedSport]: formationId,
+      [selectedTeamId]: {
+        ...currentFormations[selectedTeamId],
+        [selectedSport]: formationId,
+      },
     }));
 
     setPlayers((currentPlayers) => {
       let playerIndex = 0;
 
       return currentPlayers.map((player) => {
-        if (player.sport !== selectedSport) {
+        const belongsToSelectedTeam =
+          player.sport === selectedSport && player.teamId === selectedTeamId;
+
+        if (!belongsToSelectedTeam) {
           return player;
         }
 
@@ -138,11 +197,23 @@ function App() {
           <div className="mt-8 grid gap-8 border-t pt-6 lg:grid-cols-[280px_1fr]">
             <aside className="space-y-5">
               <div className="rounded-xl border bg-white p-5">
+                <TeamSelector
+                  teams={teams}
+                  selectedTeamId={selectedTeamId}
+                  onTeamChange={setSelectedTeamId}
+                />
+              </div>
+
+              <div className="rounded-xl border bg-white p-5">
+                <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  {selectedTeam.name} düzenleniyor
+                </p>
+
                 <TeamSettings
-                  teamName={teamName}
-                  teamColor={teamColor}
-                  onTeamNameChange={setTeamName}
-                  onTeamColorChange={setTeamColor}
+                  teamName={selectedTeam.name}
+                  teamColor={selectedTeam.color}
+                  onTeamNameChange={handleTeamNameChange}
+                  onTeamColorChange={handleTeamColorChange}
                 />
               </div>
 
@@ -155,7 +226,7 @@ function App() {
               </div>
 
               <PlayerManager
-                key={selectedSport}
+                key={`${selectedSport}-${selectedTeamId}`}
                 selectedSport={selectedSport}
                 players={currentPlayers}
                 onAddPlayer={handleAddPlayer}
@@ -169,7 +240,7 @@ function App() {
               selectedSport={selectedSport}
               selectedFormation={selectedFormation}
               players={currentPlayers}
-              teamColor={teamColor}
+              teamColor={selectedTeam.color}
               onMovePlayer={handleMovePlayer}
             />
           </div>
