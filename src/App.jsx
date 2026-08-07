@@ -1,18 +1,29 @@
 import { useState } from "react";
 import AppHeader from "@/components/layout/AppHeader";
+import FormationSelector from "@/components/tactics/FormationSelector";
 import PlayerManager from "@/components/tactics/PlayerManager";
 import SportField from "@/components/tactics/SportField";
 import SportSelector from "@/components/tactics/SportSelector";
 import TeamSettings from "@/components/tactics/TeamSettings";
+import { defaultFormationsBySport, formationsBySport } from "@/data/formations";
 
 function App() {
   const [selectedSport, setSelectedSport] = useState("football");
   const [teamName, setTeamName] = useState("Ev Sahibi");
   const [teamColor, setTeamColor] = useState("#2563eb");
   const [players, setPlayers] = useState([]);
+  const [selectedFormations, setSelectedFormations] = useState(
+    defaultFormationsBySport,
+  );
 
   const currentPlayers = players.filter(
     (player) => player.sport === selectedSport,
+  );
+
+  const selectedFormationId = selectedFormations[selectedSport];
+
+  const selectedFormation = formationsBySport[selectedSport].find(
+    (formation) => formation.id === selectedFormationId,
   );
 
   function handleAddPlayer(newPlayer) {
@@ -62,6 +73,44 @@ function App() {
     );
   }
 
+  function handleFormationChange(formationId) {
+    const newFormation = formationsBySport[selectedSport].find(
+      (formation) => formation.id === formationId,
+    );
+
+    if (!newFormation) {
+      return;
+    }
+
+    setSelectedFormations((currentFormations) => ({
+      ...currentFormations,
+      [selectedSport]: formationId,
+    }));
+
+    setPlayers((currentPlayers) => {
+      let playerIndex = 0;
+
+      return currentPlayers.map((player) => {
+        if (player.sport !== selectedSport) {
+          return player;
+        }
+
+        const position = newFormation.positions[playerIndex];
+        playerIndex += 1;
+
+        if (!position) {
+          return player;
+        }
+
+        return {
+          ...player,
+          x: position.x,
+          y: position.y,
+        };
+      });
+    });
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       <AppHeader />
@@ -84,6 +133,14 @@ function App() {
                 />
               </div>
 
+              <div className="rounded-xl border bg-white p-5">
+                <FormationSelector
+                  selectedSport={selectedSport}
+                  selectedFormationId={selectedFormationId}
+                  onFormationChange={handleFormationChange}
+                />
+              </div>
+
               <PlayerManager
                 key={selectedSport}
                 selectedSport={selectedSport}
@@ -96,6 +153,7 @@ function App() {
 
             <SportField
               selectedSport={selectedSport}
+              selectedFormation={selectedFormation}
               players={currentPlayers}
               teamColor={teamColor}
               onMovePlayer={handleMovePlayer}

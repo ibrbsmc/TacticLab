@@ -16,44 +16,18 @@ const sportDetails = {
   },
 };
 
-const playerPositionsBySport = {
-  football: [
-    { x: 50, y: 88 },
-    { x: 15, y: 70 },
-    { x: 38, y: 72 },
-    { x: 62, y: 72 },
-    { x: 85, y: 70 },
-    { x: 25, y: 48 },
-    { x: 50, y: 52 },
-    { x: 75, y: 48 },
-    { x: 20, y: 25 },
-    { x: 50, y: 18 },
-    { x: 80, y: 25 },
-  ],
-  basketball: [
-    { x: 50, y: 80 },
-    { x: 25, y: 60 },
-    { x: 75, y: 60 },
-    { x: 35, y: 30 },
-    { x: 65, y: 30 },
-  ],
-  volleyball: [
-    { x: 25, y: 72 },
-    { x: 50, y: 72 },
-    { x: 75, y: 72 },
-    { x: 25, y: 35 },
-    { x: 50, y: 35 },
-    { x: 75, y: 35 },
-  ],
-};
-
-function SportField({ selectedSport, players, teamColor, onMovePlayer }) {
+function SportField({
+  selectedSport,
+  selectedFormation,
+  players,
+  teamColor,
+  onMovePlayer,
+}) {
   const fieldRef = useRef(null);
   const [draggingPlayerId, setDraggingPlayerId] = useState(null);
 
   const currentSport = sportDetails[selectedSport];
-  const playerPositions = playerPositionsBySport[selectedSport];
-
+  const playerPositions = selectedFormation.positions;
   const displayedPlayers = players.slice(0, playerPositions.length);
 
   function handlePointerDown(event, playerId) {
