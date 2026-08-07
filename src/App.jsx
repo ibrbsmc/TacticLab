@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppHeader from "@/components/layout/AppHeader";
+import SportField from "@/components/tactics/SportField";
 import SportSelector from "@/components/tactics/SportSelector";
 
 function App() {
@@ -17,11 +18,7 @@ function App() {
           />
 
           <div className="mt-8 border-t pt-6">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              Taktik tahtası
-            </h2>
-
-            <p className="mt-2 text-slate-600">Seçilen spor: {selectedSport}</p>
+            <SportField selectedSport={selectedSport} />
           </div>
         </section>
       </main>
