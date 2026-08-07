@@ -48,6 +48,20 @@ function App() {
     });
   }
 
+  function handleMovePlayer(playerId, x, y) {
+    setPlayers((currentPlayers) =>
+      currentPlayers.map((player) =>
+        player.id === playerId
+          ? {
+              ...player,
+              x,
+              y,
+            }
+          : player,
+      ),
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       <AppHeader />
@@ -84,6 +98,7 @@ function App() {
               selectedSport={selectedSport}
               players={currentPlayers}
               teamColor={teamColor}
+              onMovePlayer={handleMovePlayer}
             />
           </div>
         </section>

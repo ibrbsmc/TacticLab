@@ -1,4 +1,5 @@
 import { Crown } from "lucide-react";
+import { useRef, useState } from "react";
 
 const sportDetails = {
   football: {
@@ -46,11 +47,46 @@ const playerPositionsBySport = {
   ],
 };
 
-function SportField({ selectedSport, players, teamColor }) {
+function SportField({ selectedSport, players, teamColor, onMovePlayer }) {
+  const fieldRef = useRef(null);
+  const [draggingPlayerId, setDraggingPlayerId] = useState(null);
+
   const currentSport = sportDetails[selectedSport];
   const playerPositions = playerPositionsBySport[selectedSport];
 
   const displayedPlayers = players.slice(0, playerPositions.length);
+
+  function handlePointerDown(event, playerId) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingPlayerId(playerId);
+  }
+
+  function handlePointerMove(event, playerId) {
+    if (draggingPlayerId !== playerId || !fieldRef.current) {
+      return;
+    }
+
+    const fieldRectangle = fieldRef.current.getBoundingClientRect();
+
+    const calculatedX =
+      ((event.clientX - fieldRectangle.left) / fieldRectangle.width) * 100;
+
+    const calculatedY =
+      ((event.clientY - fieldRectangle.top) / fieldRectangle.height) * 100;
+
+    const limitedX = Math.min(95, Math.max(5, calculatedX));
+    const limitedY = Math.min(95, Math.max(5, calculatedY));
+
+    onMovePlayer(playerId, limitedX, limitedY);
+  }
+
+  function handlePointerEnd(event) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    setDraggingPlayerId(null);
+  }
 
   return (
     <div>
@@ -59,6 +95,7 @@ function SportField({ selectedSport, players, teamColor }) {
       </h2>
 
       <div
+        ref={fieldRef}
         className={`relative mt-4 aspect-16/10 w-full overflow-hidden rounded-xl border-4 border-white shadow-md ${currentSport.backgroundColor}`}
       >
         {selectedSport === "football" && (
@@ -102,16 +139,34 @@ function SportField({ selectedSport, players, teamColor }) {
         )}
 
         {displayedPlayers.map((player, index) => {
-          const position = playerPositions[index];
+          const defaultPosition = playerPositions[index];
+
+          const position = {
+            x: player.x ?? defaultPosition.x,
+            y: player.y ?? defaultPosition.y,
+          };
+
+          const isDragging = draggingPlayerId === player.id;
 
           return (
             <div
               key={player.id}
-              className="absolute z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+              className={`absolute z-20 flex touch-none select-none flex-col items-center ${
+                isDragging
+                  ? "cursor-grabbing"
+                  : "cursor-grab transition-transform"
+              }`}
               style={{
                 left: `${position.x}%`,
                 top: `${position.y}%`,
+                transform: `translate(-50%, -50%) ${
+                  isDragging ? "scale(1.1)" : "scale(1)"
+                }`,
               }}
+              onPointerDown={(event) => handlePointerDown(event, player.id)}
+              onPointerMove={(event) => handlePointerMove(event, player.id)}
+              onPointerUp={handlePointerEnd}
+              onPointerCancel={handlePointerEnd}
             >
               <div
                 className="relative flex h-11 w-11 items-center justify-center rounded-full border-2 border-white font-bold text-white shadow-md"
