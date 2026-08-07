@@ -30,6 +30,19 @@ function App() {
     setPlayers((currentPlayers) => [...currentPlayers, newPlayer]);
   }
 
+  function handleUpdatePlayer(playerId, updatedPlayer) {
+    setPlayers((currentPlayers) =>
+      currentPlayers.map((player) =>
+        player.id === playerId
+          ? {
+              ...player,
+              ...updatedPlayer,
+            }
+          : player,
+      ),
+    );
+  }
+
   function handleDeletePlayer(playerId) {
     setPlayers((currentPlayers) =>
       currentPlayers.filter((player) => player.id !== playerId),
@@ -146,6 +159,7 @@ function App() {
                 selectedSport={selectedSport}
                 players={currentPlayers}
                 onAddPlayer={handleAddPlayer}
+                onUpdatePlayer={handleUpdatePlayer}
                 onDeletePlayer={handleDeletePlayer}
                 onSelectCaptain={handleSelectCaptain}
               />
